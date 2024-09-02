@@ -8,7 +8,7 @@ function HomePage() {
 
             <div>
                 <button style={{ margin: '10px', padding: '10px 20px', fontSize: '16px' }}>
-                    <Link to="/view-audits" style={{ textDecoration: 'none', color: 'black' }}>Voir les audits</Link>
+                    <Link to="/list_audits" style={{ textDecoration: 'none', color: 'black' }}>Voir les audits</Link>
                 </button>
                 <button style={{ margin: '10px', padding: '10px 20px', fontSize: '16px' }}>
                     <Link to="/create-audit" style={{ textDecoration: 'none', color: 'black' }}>Créer un audit</Link>
