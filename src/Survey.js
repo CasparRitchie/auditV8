@@ -31,7 +31,7 @@ function Survey() {
         axios.post(`http://127.0.0.1:5000/submit_survey/${id}`, surveyData)
             .then(response => {
                 console.log('Survey submitted successfully:', response.data);
-                navigate('/list_audits');  // Redirect to the list audits page after submission
+                navigate(`/survey_tabs/${id}`);  // Navigate to the page where tabs are managed
             })
             .catch(error => {
                 console.error('Error submitting survey:', error);
