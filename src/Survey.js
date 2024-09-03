@@ -8,7 +8,10 @@ function Survey() {
     const [cafeteriaCount, setCafeteriaCount] = useState('');
     const [snackingCount, setSnackingCount] = useState('');
     const [alternativePresence, setAlternativePresence] = useState('');
-    const [connectedFridge, setConnectedFridge] = useState('');
+    const [frigoConnecte, setFrigoConnecte] = useState('');
+    const [bonsens, setBonsens] = useState('');
+    const [twenty, setTwenty] = useState('');
+    const [bonheur, setBonheur] = useState('');
     const navigate = useNavigate();
 
     const submitSurvey = () => {
@@ -18,7 +21,10 @@ function Survey() {
             cafeteria_count: cafeteriaCount,
             snacking_count: snackingCount,
             alternative_presence: alternativePresence,
-            connected_fridge: connectedFridge
+            frigo_connecte: frigoConnecte,
+            bonsens: bonsens,
+            twenty: twenty,
+            bonheur: bonheur
         };
 
         axios.post(`http://127.0.0.1:5000/submit_survey/${id}`, surveyData)
@@ -63,24 +69,59 @@ function Survey() {
             </div>
             <div className="form-group">
                 <label>Présence de restauration alternative:</label>
-                <input
-                    type="text"
+                <select
                     className="form-control"
                     value={alternativePresence}
                     onChange={(e) => setAlternativePresence(e.target.value)}
-                />
-            </div>
-            <div className="form-group">
-                <label>Frigo connecté:</label>
-                <input
-                    type="text"
-                    className="form-control"
-                    value={connectedFridge}
-                    onChange={(e) => setConnectedFridge(e.target.value)}
-                />
+                >
+                    <option value="">Select...</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
             </div>
 
-            <button className="btn btn-primary" onClick={submitSurvey}>Submit Survey</button>
+            {alternativePresence === 'Yes' && (
+                <>
+                    <div className="form-group">
+                        <label>Frigo connecté:</label>
+                        <input
+                            type="number"
+                            className="form-control"
+                            value={frigoConnecte}
+                            onChange={(e) => setFrigoConnecte(e.target.value)}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Bonsens:</label>
+                        <input
+                            type="number"
+                            className="form-control"
+                            value={bonsens}
+                            onChange={(e) => setBonsens(e.target.value)}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Twenty:</label>
+                        <input
+                            type="number"
+                            className="form-control"
+                            value={twenty}
+                            onChange={(e) => setTwenty(e.target.value)}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Bonheur:</label>
+                        <input
+                            type="number"
+                            className="form-control"
+                            value={bonheur}
+                            onChange={(e) => setBonheur(e.target.value)}
+                        />
+                    </div>
+                </>
+            )}
+
+            <button className="btn btn-primary mt-3" onClick={submitSurvey}>Suivant</button>
         </div>
     );
 }

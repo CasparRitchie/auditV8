@@ -47,7 +47,8 @@ function CreateAudit() {
         axios.post('http://127.0.0.1:5000/submit_audit', auditData)
             .then(response => {
                 console.log('Audit submitted successfully:', response.data);
-                navigate('/list_audits');  // Redirect to the list audits page after submission
+                const auditId = response.data.id;  // Assuming the response returns the new audit ID
+                navigate(`/survey/${auditId}`);  // Redirect to the survey page with the audit ID
             })
             .catch(error => {
                 console.error('Error submitting audit:', error);
@@ -74,6 +75,7 @@ function CreateAudit() {
     return (
         <div className="container" style={{ maxWidth: '600px', marginTop: '50px' }}>
             <h1 className="mb-4 text-center">Create Audit</h1>
+            {/* Input fields and previous audits list */}
             <div className="mb-3">
                 <label className="form-label">Manager Name:</label>
                 <input
@@ -217,7 +219,7 @@ function CreateAudit() {
                 </div>
             )}
 
-            <button onClick={submitAudit} className="btn btn-primary mt-3">Submit Audit</button>
+            <button onClick={submitAudit} className="btn btn-primary mt-3">Suivant</button>
         </div>
     );
 }
