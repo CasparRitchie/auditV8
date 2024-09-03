@@ -3,7 +3,8 @@ import HomePage from './Homepage';
 import CreateAudit from './CreateAudit';
 import ListAudits from './ListAudits';
 import ViewAudit from './ViewAudit';
-// Import other components
+import Survey from './Survey';
+
 
 function App() {
     return (
@@ -13,8 +14,7 @@ function App() {
                 <Route path="/list_audits" element={<ListAudits/>} />
                 <Route path="/create-audit" element={<CreateAudit />} />
                 <Route path="/view_audit/:id" element={<ViewAudit />} /> {/* Add this route */}
-
-                {/* Add other routes here */}
+                <Route path="/survey/:id" element={<Survey />} /> {/* Ensure this route is correct */}
             </Routes>
         </Router>
     );

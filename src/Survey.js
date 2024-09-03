@@ -15,26 +15,40 @@ function Survey() {
     const navigate = useNavigate();
 
     const submitSurvey = () => {
-        const surveyData = {
-            id: id,
-            self_count: selfCount,
-            cafeteria_count: cafeteriaCount,
-            snacking_count: snackingCount,
-            alternative_presence: alternativePresence,
-            frigo_connecte: frigoConnecte,
-            bonsens: bonsens,
-            twenty: twenty,
-            bonheur: bonheur
-        };
+      const surveyData = {
+          self_count: selfCount,  // This should map to 'nombre_selfs' in the CSV
+          cafeteria_count: cafeteriaCount,
+          snacking_count: snackingCount,
+          alternative_presence: alternativePresence,
+          frigo_connecte: frigoConnecte,
+          bonsens: bonsens,
+          twenty: twenty,
+          bonheur: bonheur
+      };
 
-        axios.post(`http://127.0.0.1:5000/submit_survey/${id}`, surveyData)
-            .then(response => {
-                console.log('Survey submitted successfully:', response.data);
-                navigate('/list_audits');  // Redirect to the list audits page after submission
-            })
-            .catch(error => {
-                console.error('Error submitting survey:', error);
-            });
+      console.log('Survey Data to be submitted:', surveyData);  // Debugging line
+
+      axios.post(`http://127.0.0.1:5000/submit_survey/${id}`, surveyData)
+          .then(response => {
+              console.log('Survey submitted successfully:', response.data);
+              navigate('/list_audits');
+          })
+          .catch(error => {
+              console.error('Error submitting survey:', error);
+          });
+  };
+
+    const renderTabs = () => {
+        const tabs = [];
+        for (let i = 1; i <= selfCount; i++) {
+            tabs.push(
+                <div key={i} className="tab-content">
+                    <h2>Tab {i}</h2>
+                    <p>This is content for Tab {i}</p>
+                </div>
+            );
+        }
+        return tabs;
     };
 
     return (
@@ -46,7 +60,7 @@ function Survey() {
                     type="number"
                     className="form-control"
                     value={selfCount}
-                    onChange={(e) => setSelfCount(e.target.value)}
+                    onChange={(e) => setSelfCount(Number(e.target.value))}
                 />
             </div>
             <div className="form-group">
@@ -55,7 +69,7 @@ function Survey() {
                     type="number"
                     className="form-control"
                     value={cafeteriaCount}
-                    onChange={(e) => setCafeteriaCount(e.target.value)}
+                    onChange={(e) => setCafeteriaCount(Number(e.target.value))}
                 />
             </div>
             <div className="form-group">
@@ -64,7 +78,7 @@ function Survey() {
                     type="number"
                     className="form-control"
                     value={snackingCount}
-                    onChange={(e) => setSnackingCount(e.target.value)}
+                    onChange={(e) => setSnackingCount(Number(e.target.value))}
                 />
             </div>
             <div className="form-group">
@@ -88,7 +102,7 @@ function Survey() {
                             type="number"
                             className="form-control"
                             value={frigoConnecte}
-                            onChange={(e) => setFrigoConnecte(e.target.value)}
+                            onChange={(e) => setFrigoConnecte(Number(e.target.value))}
                         />
                     </div>
                     <div className="form-group">
@@ -97,7 +111,7 @@ function Survey() {
                             type="number"
                             className="form-control"
                             value={bonsens}
-                            onChange={(e) => setBonsens(e.target.value)}
+                            onChange={(e) => setBonsens(Number(e.target.value))}
                         />
                     </div>
                     <div className="form-group">
@@ -106,7 +120,7 @@ function Survey() {
                             type="number"
                             className="form-control"
                             value={twenty}
-                            onChange={(e) => setTwenty(e.target.value)}
+                            onChange={(e) => setTwenty(Number(e.target.value))}
                         />
                     </div>
                     <div className="form-group">
@@ -115,10 +129,17 @@ function Survey() {
                             type="number"
                             className="form-control"
                             value={bonheur}
-                            onChange={(e) => setBonheur(e.target.value)}
+                            onChange={(e) => setBonheur(Number(e.target.value))}
                         />
                     </div>
                 </>
+            )}
+
+            {selfCount > 0 && (
+                <div className="mt-5">
+                    <h2>Self(s) Information</h2>
+                    {renderTabs()}
+                </div>
             )}
 
             <button className="btn btn-primary mt-3" onClick={submitSurvey}>Suivant</button>

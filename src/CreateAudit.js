@@ -45,13 +45,14 @@ function CreateAudit() {
         };
 
         axios.post('http://127.0.0.1:5000/submit_audit', auditData)
-            .then(response => {
-                console.log('Audit submitted successfully:', response.data);
-                navigate('/list_audits');  // Redirect to the list audits page after submission
-            })
-            .catch(error => {
-                console.error('Error submitting audit:', error);
-            });
+    .then(response => {
+        console.log('Audit submitted successfully:', response.data);
+        const newAuditId = response.data.id;  // Get the ID of the newly created audit
+        navigate(`/survey/${newAuditId}`);  // Pass the ID to the Survey route
+    })
+    .catch(error => {
+        console.error('Error submitting audit:', error);
+    });
     };
 
     const fetchPreviousAudits = () => {
