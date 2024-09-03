@@ -15,28 +15,28 @@ function Survey() {
     const navigate = useNavigate();
 
     const submitSurvey = () => {
-      const surveyData = {
-          self_count: selfCount,  // This should map to 'nombre_selfs' in the CSV
-          cafeteria_count: cafeteriaCount,
-          snacking_count: snackingCount,
-          alternative_presence: alternativePresence,
-          frigo_connecte: frigoConnecte,
-          bonsens: bonsens,
-          twenty: twenty,
-          bonheur: bonheur
-      };
+        const surveyData = {
+            self_count: selfCount,
+            cafeteria_count: cafeteriaCount,
+            snacking_count: snackingCount,
+            alternative_presence: alternativePresence,
+            frigo_connecte: frigoConnecte,
+            bonsens: bonsens,
+            twenty: twenty,
+            bonheur: bonheur
+        };
 
-      console.log('Survey Data to be submitted:', surveyData);  // Debugging line
+        console.log('Survey Data to be submitted:', surveyData);
 
-      axios.post(`http://127.0.0.1:5000/submit_survey/${id}`, surveyData)
-          .then(response => {
-              console.log('Survey submitted successfully:', response.data);
-              navigate('/list_audits');
-          })
-          .catch(error => {
-              console.error('Error submitting survey:', error);
-          });
-  };
+        axios.post(`http://127.0.0.1:5000/submit_survey/${id}`, surveyData)
+            .then(response => {
+                console.log('Survey submitted successfully:', response.data);
+                navigate('/list_audits');  // Redirect to the list audits page after submission
+            })
+            .catch(error => {
+                console.error('Error submitting survey:', error);
+            });
+    };
 
     const renderTabs = () => {
         const tabs = [];
