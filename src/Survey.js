@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 
 function Survey() {
     const { id } = useParams();
@@ -23,32 +24,17 @@ function Survey() {
             frigo_connecte: frigoConnecte,
             bonsens: bonsens,
             twenty: twenty,
-            bonheur: bonheur
+            bonheur: bonheur,
         };
-
-        console.log('Survey Data to be submitted:', surveyData);
 
         axios.post(`http://127.0.0.1:5000/submit_survey/${id}`, surveyData)
             .then(response => {
                 console.log('Survey submitted successfully:', response.data);
-                navigate(`/survey_tabs/${id}`);  // Navigate to the page where tabs are managed
+                navigate(`/survey_tabs/${id}/${selfCount}`);  // Navigate to the SurveyTabs with the number of selfs
             })
             .catch(error => {
                 console.error('Error submitting survey:', error);
             });
-    };
-
-    const renderTabs = () => {
-        const tabs = [];
-        for (let i = 1; i <= selfCount; i++) {
-            tabs.push(
-                <div key={i} className="tab-content">
-                    <h2>Tab {i}</h2>
-                    <p>This is content for Tab {i}</p>
-                </div>
-            );
-        }
-        return tabs;
     };
 
     return (
@@ -133,13 +119,6 @@ function Survey() {
                         />
                     </div>
                 </>
-            )}
-
-            {selfCount > 0 && (
-                <div className="mt-5">
-                    <h2>Self(s) Information</h2>
-                    {renderTabs()}
-                </div>
             )}
 
             <button className="btn btn-primary mt-3" onClick={submitSurvey}>Suivant</button>

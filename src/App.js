@@ -16,6 +16,7 @@ function App() {
                 <Route path="/view_audit/:id" element={<ViewAudit />} />
                 <Route path="/survey/:id" element={<Survey />} />
                 <Route path="/survey_tabs/:id" element={<SurveyTabs />} /> {/* New Route */}
+                <Route path="/survey_tabs/:id/:selfCount" element={<SurveyTabs />} />
             </Routes>
         </Router>
     );

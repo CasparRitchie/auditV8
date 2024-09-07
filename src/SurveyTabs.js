@@ -1,12 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
 
 function SurveyTabs() {
-    const { id } = useParams();
+    const { id, selfCount } = useParams();
     const [surveyStructure, setSurveyStructure] = useState(null);
+    const [answers, setAnswers] = useState({});
+    const navigate = useNavigate();
+
+    const selfCountNumber = parseInt(selfCount, 10);
 
     useEffect(() => {
+        if (isNaN(selfCountNumber) || selfCountNumber < 1) {
+            alert("Invalid number of tabs.");
+            navigate('/list_audits');
+            return;
+        }
+
         axios.get('http://127.0.0.1:5000/api/survey_structure')
             .then(response => {
                 setSurveyStructure(response.data);
@@ -14,120 +24,181 @@ function SurveyTabs() {
             .catch(error => {
                 console.error('Error fetching survey structure:', error);
             });
-    }, []);
+    }, [selfCountNumber, navigate]);
 
-    const handleInputChange = (chapitre, sousChapitre, paragraphe, sousParagraphe, question, value) => {
-        setSurveyStructure(prevState => ({
-            ...prevState,
-            [chapitre]: {
-                ...prevState[chapitre],
-                [sousChapitre]: {
-                    ...prevState[chapitre][sousChapitre],
-                    [paragraphe]: {
-                        ...prevState[chapitre][sousChapitre][paragraphe],
-                        [sousParagraphe]: prevState[chapitre][sousChapitre][paragraphe][sousParagraphe].map(q =>
-                            q === question ? { ...q, answer: value } : q
-                        )
-                    }
-                }
-            }
-        }));
+    const handleRemoveItem = (parent, key) => {
+        delete parent[key];
+        setSurveyStructure({ ...surveyStructure });
     };
 
-    const handleRemoveQuestion = (chapitre, sousChapitre, paragraphe, sousParagraphe, question) => {
-        setSurveyStructure(prevState => ({
-            ...prevState,
-            [chapitre]: {
-                ...prevState[chapitre],
-                [sousChapitre]: {
-                    ...prevState[chapitre][sousChapitre],
-                    [paragraphe]: {
-                        ...prevState[chapitre][sousChapitre][paragraphe],
-                        [sousParagraphe]: prevState[chapitre][sousChapitre][paragraphe][sousParagraphe].filter(q => q !== question)
-                    }
-                }
-            }
-        }));
+    const handleRemoveQuestion = (sousParagraphe, index) => {
+        sousParagraphe.splice(index, 1);
+        setSurveyStructure({ ...surveyStructure });
     };
 
-    const handleAddProduct = (chapitre, sousChapitre, paragraphe, sousParagraphe) => {
-        setSurveyStructure(prevState => ({
-            ...prevState,
-            [chapitre]: {
-                ...prevState[chapitre],
-                [sousChapitre]: {
-                    ...prevState[chapitre][sousChapitre],
-                    [paragraphe]: {
-                        ...prevState[chapitre][sousChapitre][paragraphe],
-                        [sousParagraphe]: [...prevState[chapitre][sousChapitre][paragraphe][sousParagraphe], `Produit ${prevState[chapitre][sousChapitre][paragraphe][sousParagraphe].length + 1}`]
-                    }
-                }
-            }
-        }));
+    const handleAnswerChange = (questionId, answer) => {
+        setAnswers({ ...answers, [questionId]: answer });
     };
 
-    const renderQuestions = (questions, chapitre, sousChapitre, paragraphe, sousParagraphe) => {
-        return questions.map((question, index) => (
-            <div key={index} className="input-group mb-2">
-                <span className="input-group-text">{question}</span> {/* Display the question title */}
-                <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Enter your answer"
-                    onChange={(e) => handleInputChange(chapitre, sousChapitre, paragraphe, sousParagraphe, question, e.target.value)}
-                />
-                <button className="btn btn-danger" onClick={() => handleRemoveQuestion(chapitre, sousChapitre, paragraphe, sousParagraphe, question)}>
-                    Remove
-                </button>
+    const handleSubmit = () => {
+        // Submit the answers to the backend
+        axios.post(`http://127.0.0.1:5000/submit_answers/${id}`, answers)
+            .then(response => {
+                console.log('Answers submitted successfully:', response.data);
+                navigate('/list_audits');
+            })
+            .catch(error => {
+                console.error('Error submitting answers:', error);
+            });
+    };
+
+    const renderQuestions = (questions, sousParagraphe, parentId) => {
+      return questions.map((questionObj, index) => {
+          const questionId = `${parentId}_${index}`;
+          const questionText = questionObj.question; // Access the question text
+          const responseType = questionObj.responseType; // Access the response type
+
+          // Based on the responseType, render the appropriate input
+          const renderResponseOptions = () => {
+              switch (responseType) {
+                  case 'C/PC/NC':
+                      return (
+                          <div className="btn-group ml-2" role="group">
+                              <input
+                                  type="radio"
+                                  name={questionId}
+                                  value="C"
+                                  onChange={() => handleAnswerChange(questionId, 'C')}
+                              /> C
+                              <input
+                                  type="radio"
+                                  name={questionId}
+                                  value="PC"
+                                  onChange={() => handleAnswerChange(questionId, 'PC')}
+                              /> PC
+                              <input
+                                  type="radio"
+                                  name={questionId}
+                                  value="NC"
+                                  onChange={() => handleAnswerChange(questionId, 'NC')}
+                              /> NC
+                          </div>
+                      );
+                  case 'OK/KO':
+                      return (
+                          <div className="btn-group ml-2" role="group">
+                              <input
+                                  type="radio"
+                                  name={questionId}
+                                  value="OK"
+                                  onChange={() => handleAnswerChange(questionId, 'OK')}
+                              /> OK
+                              <input
+                                  type="radio"
+                                  name={questionId}
+                                  value="KO"
+                                  onChange={() => handleAnswerChange(questionId, 'KO')}
+                              /> KO
+                          </div>
+                      );
+                  case 'Temperature':
+                      return (
+                          <div>
+                              <input
+                                  type="number"
+                                  placeholder="Enter temperature"
+                                  className="form-control"
+                                  onChange={(e) => handleAnswerChange(questionId, e.target.value)}
+                              />
+                          </div>
+                      );
+                  default:
+                      return <p>Unknown response type</p>;
+              }
+          };
+
+          return (
+              <div key={index} className="input-group mt-2">
+                  <span className="input-group-text">{questionText}</span>
+                  {renderResponseOptions()}
+                  <button className="btn btn-danger btn-sm ml-2" onClick={() => handleRemoveQuestion(sousParagraphe, index)}>X</button>
+              </div>
+          );
+      });
+  };
+
+    const renderSousParagraphe = (sousParagraphe, parentId) => {
+        return Object.keys(sousParagraphe).map((key, index) => (
+            <div key={index} className="card mt-2">
+                <div className="card-header">
+                    <span>{key}</span>
+                    <button className="btn btn-danger btn-sm mt-2" onClick={() => handleRemoveItem(sousParagraphe, key)}>X</button>
+                </div>
+                <div className="card-body">
+                    {renderQuestions(sousParagraphe[key], sousParagraphe[key], `${parentId}_${index}`)}
+                </div>
             </div>
         ));
     };
 
-    const renderSousParagraphe = (sousParagrapheData, chapitre, sousChapitre, paragraphe) => {
-        return Object.keys(sousParagrapheData).map((sousParagraphe, index) => (
-            <div key={index} style={{ marginLeft: '20px' }}>
-                <h5>{sousParagraphe}</h5>
-                {renderQuestions(sousParagrapheData[sousParagraphe], chapitre, sousChapitre, paragraphe, sousParagraphe)}
-                {sousParagraphe === 'Relevés des températures' && (
-                    <button className="btn btn-secondary" onClick={() => handleAddProduct(chapitre, sousChapitre, paragraphe, sousParagraphe)}>
-                        Add Product
-                    </button>
-                )}
+    const renderParagraphe = (paragraphe, parentId) => {
+        return Object.keys(paragraphe).map((key, index) => (
+            <div key={index} className="card mt-2">
+                <div className="card-header">
+                    <span>{key}</span>
+                    <button className="btn btn-danger btn-sm mt-2" onClick={() => handleRemoveItem(paragraphe, key)}>X</button>
+                </div>
+                <div className="card-body">
+                    {renderSousParagraphe(paragraphe[key], `${parentId}_${index}`)}
+                </div>
             </div>
         ));
     };
 
-    const renderParagraphe = (paragrapheData, chapitre, sousChapitre) => {
-        return Object.keys(paragrapheData).map((paragraphe, index) => (
-            <div key={index} style={{ marginLeft: '20px' }}>
-                <h4>{paragraphe}</h4>
-                {renderSousParagraphe(paragrapheData[paragraphe], chapitre, sousChapitre, paragraphe)}
+    const renderSousChapitre = (sousChapitre, parentId) => {
+        return Object.keys(sousChapitre).map((key, index) => (
+            <div key={index} className="card mt-2">
+                <div className="card-header">
+                    <span>{key}</span>
+                    <button className="btn btn-danger btn-sm mt-2" onClick={() => handleRemoveItem(sousChapitre, key)}>X</button>
+                </div>
+                <div className="card-body">
+                    {renderParagraphe(sousChapitre[key], `${parentId}_${index}`)}
+                </div>
             </div>
         ));
     };
 
-    const renderSousChapitre = (sousChapitreData, chapitre) => {
-        return Object.keys(sousChapitreData).map((sousChapitre, index) => (
-            <div key={index} style={{ marginLeft: '20px' }}>
-                <h3>{sousChapitre}</h3>
-                {renderParagraphe(sousChapitreData[sousChapitre], chapitre, sousChapitre)}
-            </div>
-        ));
-    };
-
-    const renderChapitre = (chapitreData) => {
-        return Object.keys(chapitreData).map((chapitre, index) => (
-            <div key={index} style={{ marginBottom: '20px' }}>
-                <h2>{chapitre}</h2>
-                {renderSousChapitre(chapitreData[chapitre], chapitre)}
+    const renderChapitre = () => {
+        return Object.keys(surveyStructure).map((key, index) => (
+            <div key={index} className="card mt-3">
+                <div className="card-header">
+                    <span>{key}</span>
+                    <button className="btn btn-danger btn-sm mt-2" onClick={() => handleRemoveItem(surveyStructure, key)}>X</button>
+                </div>
+                <div className="card-body">
+                    {renderSousChapitre(surveyStructure[key], `chapitre_${index}`)}
+                </div>
             </div>
         ));
     };
 
     return (
         <div className="container">
-            <h1>Manage Survey Tabs for Audit {id}</h1>
-            {surveyStructure ? renderChapitre(surveyStructure) : <p>Loading...</p>}
+            <h1>Survey for Audit {id} - Self Count: {selfCount}</h1>
+            <h2>Rendering {selfCountNumber} Tab(s)</h2>
+            {surveyStructure ? (
+                Array.from({ length: selfCountNumber }).map((_, index) => (
+                    <div key={index}>
+                        <h3>Tab {index + 1}</h3>
+                        {renderChapitre()}
+                    </div>
+                ))
+            ) : (
+                <p>Loading survey structure...</p>
+            )}
+
+            <button className="btn btn-primary mt-4" onClick={handleSubmit}>Submit</button>
         </div>
     );
 }

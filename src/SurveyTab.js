@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Chapitre from './Chapitre'; // You'll create this next
+import Chapitre from '../Archive/Chapitre'; // You'll create this next
 
 function SurveyTab() {
     const [chapitres, setChapitres] = useState([]);
